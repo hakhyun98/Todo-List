@@ -1,9 +1,20 @@
-import { React, useState, useEffect} from "react";
+import { React, useState, useEffect, useCallback } from "react";
+import ThemeContext from "./ThemeContext";
+import MainContent from "./MainContent";
 
 export default function TodoList() {
 
     const [todo, setTodo] = useState("");
     const [todoList, setTodoList] = useState([]);
+    const [theme, setTheme] = useState('light');
+
+    const toggleTheme = useCallback(() => {
+        if (theme === 'light') {
+            setTheme('dark');
+        } else if (theme === 'dark') {
+            setTheme('light');
+        }
+    }, [theme]);
 
     useEffect(() => {
         const todoList = localStorage.getItem("todoList");
@@ -17,16 +28,14 @@ export default function TodoList() {
     }, [todoList]);
 
     const onChange = (event) => {
-        if (event.nativeEvent.isComposing) {
-            return;
-        } else {
-            setTodo(event.target.value)
-        }
+        setTodo(event.target.value)
     };
 
-   const onSubmit = (event) => {
+    const onSubmit = (event) => {
         if (todoList.includes(todo)) {
+            event.preventDefault();
             alert("이미 등록된 할 일입니다.");
+            setTodo("");
             return;
         } else {
             event.preventDefault();
@@ -47,7 +56,7 @@ export default function TodoList() {
 
 
     const onKeyDown = (event) => {
-        if (event.key === 'Enter') {
+        if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
             onSubmit(event);
         }
     };
@@ -56,9 +65,10 @@ export default function TodoList() {
         <div>
             <h1>Todo List</h1>
             <form onSubmit={onSubmit}>
-                <div>할 일:
+                <div>할일:
                     <input type="text" value={todo} onChange={onChange} onKeyDown={onKeyDown} />
                     <button type="submit" onClick={onSubmit}>추가</button>
+                    
                 </div>
             </form>
             <hr />
@@ -78,6 +88,5 @@ export default function TodoList() {
                 )}
             </fieldset>
         </div>
-
     );
 }
